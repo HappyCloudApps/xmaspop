@@ -3,7 +3,7 @@ bin/
 bin-debug/
 bin-release/
 fla/assets.fla
-
+assets/
 
 # Other files and folders
 .settings/
