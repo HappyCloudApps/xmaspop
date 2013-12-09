@@ -30,7 +30,7 @@ package com.myhappycloud.xpop.views.game
 			_updateScoreSignal = new Signal(int);
 			_updateTimeSignal = new Signal(String);
 			_gameOverSignal = new Signal();
-			_view.addChild(new SimpleGame());
+			_view.addChild(new GemsMechanics());
 		}
 
 		public function start() : void

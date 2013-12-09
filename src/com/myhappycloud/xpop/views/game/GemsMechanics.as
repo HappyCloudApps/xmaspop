@@ -1,5 +1,10 @@
 package com.myhappycloud.xpop.views.game
 {
+	import flash.display.MovieClip;
+	import com.greensock.easing.Linear;
+	import flash.display.DisplayObject;
+	import com.greensock.data.TweenLiteVars;
+	import com.greensock.TweenLite;
 	import assets.GameGem;
 
 	import flash.display.Sprite;
@@ -7,21 +12,15 @@ package com.myhappycloud.xpop.views.game
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
 
-	public class SimpleGame extends Sprite
+	public class GemsMechanics extends Sprite
 	{
+		private static const NUM_GEMS : int = 6;
 		private var gems_array : Array = new Array();
-		private var aGem : Sprite;
+		private var aGem : MovieClip;
 		private var selectorBox : Sprite = new Sprite();
 		private var selectorRow : int = -10;
 		private var selectorColumn : int = -10;
 		private var red : uint = 0xFF0000;
-		private var green : uint = 0xFF00;
-		private var blue : uint = 0xFF;
-		private var yellow : uint = 0xFFFF00;
-		private var cyan : uint = 0xFFFF;
-		private var magenta : uint = 0xFF00FF;
-		private var white : uint = 0xFFFFFF;
-		private var colours_array : Array = new Array(red, green, blue, yellow, cyan, magenta, white);
 		private var clickPossible : Boolean = false;
 		private var score_txt : TextField = new TextField();
 		private var hint_txt : TextField = new TextField();
@@ -33,7 +32,7 @@ package com.myhappycloud.xpop.views.game
 		private var gemWH : Number = 49.3;
 		private var gameWH : Number = 396;
 
-		public function SimpleGame()
+		public function GemsMechanics()
 		{
 			// Game initiation
 			// Create and style score text
@@ -44,6 +43,17 @@ package com.myhappycloud.xpop.views.game
 			addChild(hint_txt);
 			hint_txt.textColor = 0xFFFFFF;
 			hint_txt.x = 550;
+			
+			initialSetupGems();
+
+			if (stage)
+				init();
+			else
+				addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+
+		private function initialSetupGems() : void
+		{
 			// Create Gems in rows and columns
 			addChild(gemCanvas);
 			gemCanvas.x = 240;
@@ -55,10 +65,10 @@ package com.myhappycloud.xpop.views.game
 				{
 					do
 					{
-						gems_array[i][j] = Math.floor(Math.random() * 7);
+						gems_array[i][j] = Math.floor(Math.random() * NUM_GEMS);
 					}
 					while (rowLineLength(i, j) > 2 || columnLineLength(i, j) > 2);
-					aGem = new Sprite();
+					aGem = new MovieClip();
 					/*
 					aGem.graphics.beginFill(colours_array[gems_array[i][j]]);
 					aGem.graphics.drawCircle(23, 23, 23);
@@ -67,10 +77,11 @@ package com.myhappycloud.xpop.views.game
 					aGem.name = i + "_" + j;
 					aGem.x = j * gemWH - 240;
 					aGem.y = i * gemWH - 240;
+					aGem.targetY = aGem.y;
 					var gemGraph:GameGem = new GameGem();
 					var frame:int = (gems_array[i][j])+1;
 					gemGraph.gotoAndStop(frame);
-					trace('frame: ' + (frame));
+
 					aGem.addChild(gemGraph);
 					gemCanvas.addChild(aGem);
 				}
@@ -80,11 +91,6 @@ package com.myhappycloud.xpop.views.game
 			selectorBox.graphics.lineStyle(2, red, 1);
 			selectorBox.graphics.drawRect(0, 0, gemWH, gemWH);
 			selectorBox.visible = false;
-
-			if (stage)
-				init();
-			else
-				addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 
 		private function init(e : Event = null) : void
@@ -113,7 +119,14 @@ package com.myhappycloud.xpop.views.game
 						gemsAreFalling = true;
 						gems_array[i + 1][j] = gems_array[i][j];
 						gems_array[i][j] = -1;
-						gemCanvas.getChildByName(i + "_" + j).y += gemWH;
+						// gemCanvas.getChildByName(i + "_" + j).y += gemWH;
+						var gem : MovieClip = MovieClip(gemCanvas.getChildByName(i + "_" + j));
+						TweenLite.killTweensOf(gem);
+						var vars:TweenLiteVars = new TweenLiteVars();
+						gem.targetY = gem.targetY+gemWH;
+						vars.y(gem.targetY);
+						vars.ease(Linear.easeNone);
+						TweenLite.to(gem,.3,vars);
 						gemCanvas.getChildByName(i + "_" + j).name = (i + 1) + "_" + j;
 						break;
 					}
@@ -141,9 +154,9 @@ package com.myhappycloud.xpop.views.game
 							// now we know we need a new gem
 							needNewGem = true;
 							// pick a random color for the gem
-							gems_array[0][j] = Math.floor(Math.random() * 7);
+							gems_array[0][j] = Math.floor(Math.random() * NUM_GEMS);
 							// create the gem
-							aGem = new Sprite();
+							aGem = new MovieClip();
 							/*
 							aGem.graphics.beginFill(colours_array[gems_array[0][j]]);
 							aGem.graphics.drawCircle(23, 23, 23);
@@ -154,6 +167,7 @@ package com.myhappycloud.xpop.views.game
 							// position it
 							aGem.x = j * gemWH - 240;
 							aGem.y = -240;
+							aGem.targetY = aGem.y;
 							// show it
 							var gemGraph:GameGem = new GameGem();
 							var frame:int = (gems_array[0][j])+1;
