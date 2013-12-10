@@ -1,5 +1,6 @@
 package com.myhappycloud.xpop.views.game
 {
+	import org.osflash.signals.Signal;
 	import flash.display.MovieClip;
 	import com.greensock.easing.Linear;
 	import flash.display.DisplayObject;
@@ -31,9 +32,11 @@ package com.myhappycloud.xpop.views.game
 		private var gemCanvas : Sprite = new Sprite();
 		private var gemWH : Number = 49.3;
 		private var gameWH : Number = 396;
+		private var _scoreUpdate : Signal;
 
 		public function GemsMechanics()
 		{
+			_scoreUpdate = new Signal(uint);
 			// Game initiation
 			// Create and style score text
 			addChild(score_txt);
@@ -119,14 +122,14 @@ package com.myhappycloud.xpop.views.game
 						gemsAreFalling = true;
 						gems_array[i + 1][j] = gems_array[i][j];
 						gems_array[i][j] = -1;
-						// gemCanvas.getChildByName(i + "_" + j).y += gemWH;
-						var gem : MovieClip = MovieClip(gemCanvas.getChildByName(i + "_" + j));
-						TweenLite.killTweensOf(gem);
-						var vars:TweenLiteVars = new TweenLiteVars();
-						gem.targetY = gem.targetY+gemWH;
-						vars.y(gem.targetY);
-						vars.ease(Linear.easeNone);
-						TweenLite.to(gem,.3,vars);
+						gemCanvas.getChildByName(i + "_" + j).y += gemWH;
+//						var gem : MovieClip = MovieClip(gemCanvas.getChildByName(i + "_" + j));
+//						TweenLite.killTweensOf(gem);
+//						var vars:TweenLiteVars = new TweenLiteVars();
+//						gem.targetY = gem.targetY+gemWH;
+//						vars.y(gem.targetY);
+//						vars.ease(Linear.easeNone);
+//						TweenLite.to(gem,.3,vars);
 						gemCanvas.getChildByName(i + "_" + j).name = (i + 1) + "_" + j;
 						break;
 					}
@@ -314,6 +317,7 @@ package com.myhappycloud.xpop.views.game
 			}
 			// display new score
 			score_txt.text = score.toString();
+			_scoreUpdate.dispatch(score);
 		}
 
 		// When the user clicks
@@ -529,6 +533,11 @@ package com.myhappycloud.xpop.views.game
 					a[j][n - i - 1] = tmp;
 				}
 			}
+		}
+
+		public function get scoreUpdate() : Signal
+		{
+			return _scoreUpdate;
 		}
 	}
 }

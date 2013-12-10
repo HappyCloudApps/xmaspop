@@ -78,5 +78,10 @@ package com.myhappycloud.xpop.views.screens
 		{
 			return _instSignal;
 		}
+
+		public function setScore(score : uint) : void
+		{
+			view.score_txt.text = String(score);
+		}
 	}
 }

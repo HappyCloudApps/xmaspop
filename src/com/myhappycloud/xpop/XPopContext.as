@@ -1,5 +1,7 @@
 package com.myhappycloud.xpop
 {
+	import com.myhappycloud.xpop.commands.SetScoreCommand;
+	import com.myhappycloud.xpop.events.ModelEvent;
 	import com.myhappycloud.xpop.mediators.MainMenuMediator;
 	import com.myhappycloud.xpop.views.screens.MainMenuScreen;
 	import com.myhappycloud.xpop.commands.ChangeStateCommand;
@@ -40,6 +42,7 @@ package com.myhappycloud.xpop
 
 			commandMap.mapEvent(ContextEvent.STARTUP_COMPLETE, InitialSetupCommand);
 			commandMap.mapEvent(NavEvent.GO_TO, ChangeStateCommand);
+			commandMap.mapEvent(ModelEvent.SET_SCORE, SetScoreCommand);
 
 			mediatorMap.mapView(ScreensContainer, ScreensContainerMediator);
 			mediatorMap.mapView(SplashScreen, SplashMediator);

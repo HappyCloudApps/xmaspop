@@ -22,15 +22,17 @@ package com.myhappycloud.xpop.views.game
 		private var bonusTime : int;
 		private var totalTime : int;
 		private var timeTimer : Timer;
+		private var paused : Boolean = false;
 
 		public function GemsGame(container : MovieClip)
 		{
 			trace("GemsGame.GemsGame(view)");
 			this._view = container;
-			_updateScoreSignal = new Signal(int);
+			var gameMech:GemsMechanics = new GemsMechanics();
+			_view.addChild(gameMech);
+			_updateScoreSignal = gameMech.scoreUpdate;
 			_updateTimeSignal = new Signal(String);
 			_gameOverSignal = new Signal();
-			_view.addChild(new GemsMechanics());
 		}
 
 		public function start() : void
@@ -89,6 +91,15 @@ package com.myhappycloud.xpop.views.game
 		public function get gameOverSignal() : Signal
 		{
 			return _gameOverSignal;
+		}
+
+		public function pause() : void
+		{
+			if(paused)
+				return;
+			acumTime = getTimer() - startTime;
+			paused = true;
+			timeTimer.stop();
 		}
 	}
 }

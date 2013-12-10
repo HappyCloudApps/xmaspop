@@ -13,6 +13,7 @@ package com.myhappycloud.xpop.models
 	public class AppModel extends Actor implements IAppVars
 	{
 		private var sMachine : StateMachine;
+		private var _score : uint;
 
 		public function AppModel()
 		{
@@ -52,6 +53,16 @@ package com.myhappycloud.xpop.models
 		public function getState() : String
 		{
 			return sMachine.state;
+		}
+
+		public function setScore(score : uint) : void
+		{
+			_score = score;
+		}
+		
+		public function getScore() : uint
+		{
+			return _score;
 		}
 	}
 }

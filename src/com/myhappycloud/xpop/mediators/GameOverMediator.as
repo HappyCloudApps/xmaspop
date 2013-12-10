@@ -1,5 +1,6 @@
 package com.myhappycloud.xpop.mediators
 {
+	import com.myhappycloud.xpop.models.IAppVars;
 	import com.myhappycloud.xpop.models.AppStates;
 	import com.myhappycloud.xpop.events.NavEvent;
 	import com.myhappycloud.xpop.views.screens.GameOverScreen;
@@ -13,6 +14,8 @@ package com.myhappycloud.xpop.mediators
 	{
 		[Inject]
 		public var view : GameOverScreen;
+		[Inject]
+		public var model : IAppVars;
 
 		override public function onRegister() : void
 		{
@@ -20,6 +23,8 @@ package com.myhappycloud.xpop.mediators
 			view.open();
 			view.playSignal.addOnce(goPlay);
 			view.instSignal.addOnce(goInst);
+			
+			view.setScore(model.getScore());
 		}
 
 		private function goInst() : void

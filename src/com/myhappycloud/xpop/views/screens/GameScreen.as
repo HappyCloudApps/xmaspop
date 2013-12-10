@@ -1,14 +1,15 @@
 package com.myhappycloud.xpop.views.screens
 {
-	import flash.utils.getTimer;
-	import com.myhappycloud.xpop.views.game.GemsGame;
+	import flash.events.MouseEvent;
+	import com.myhappycloud.xpop.utils.BtnUtils;
 	import assets.GameView;
-	import flash.utils.setTimeout;
+
+	import com.myhappycloud.xpop.views.IScreen;
+	import com.myhappycloud.xpop.views.game.GemsGame;
+
 	import org.osflash.signals.Signal;
 
 	import flash.display.MovieClip;
-
-	import com.myhappycloud.xpop.views.IScreen;
 
 	/**
 	 * @author Eder
@@ -19,31 +20,40 @@ package com.myhappycloud.xpop.views.screens
 		private var _gameOverSignal : Signal;
 		private var view : GameView;
 		private var gameController : GemsGame;
+		private var _score : int;
 
 		public function GameScreen()
 		{
 			trace("GameScreen.GameScreen()");
 			_closeSignal = new Signal();
 			_gameOverSignal = new Signal();
-			
+
 			view = new GameView();
 			addChild(view);
 
-			while(view.container_mc.numChildren>0)
+			while (view.container_mc.numChildren > 0)
 				view.container_mc.removeChildAt(0);
 
 			gameController = new GemsGame(view.container_mc);
 			gameController.updateScoreSignal.add(updateScore);
 			gameController.updateTimeSignal.add(updateTime);
 			gameController.gameOverSignal.addOnce(gameOver);
+			
+			BtnUtils.onClick(view.btn_pause, pauseGame);
 		}
 
-		private function updateScore(score:int) : void
+		private function pauseGame(e:MouseEvent) : void
 		{
+			gameController.pause();
+		}
+
+		private function updateScore(score : int) : void
+		{
+			_score = score;
 			view.score_txt.text = String(score);
 		}
-		
-		private function updateTime(time:String) : void
+
+		private function updateTime(time : String) : void
 		{
 			view.time_txt.text = time;
 		}
@@ -60,7 +70,7 @@ package com.myhappycloud.xpop.views.screens
 
 		public function open() : void
 		{
-//			setTimeout(gameOver, 3000);
+			// setTimeout(gameOver, 3000);
 			gameController.start();
 		}
 
@@ -78,6 +88,11 @@ package com.myhappycloud.xpop.views.screens
 		public function get gameOverSignal() : Signal
 		{
 			return _gameOverSignal;
+		}
+
+		public function get score() : int
+		{
+			return _score;
 		}
 	}
 }
