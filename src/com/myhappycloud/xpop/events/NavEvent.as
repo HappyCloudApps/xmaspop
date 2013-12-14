@@ -7,6 +7,7 @@ package com.myhappycloud.xpop.events
 	public class NavEvent extends Event 
 	{
 		public static const GO_TO : String = "GO_TO";
+		public static const SETUP_SOUNDS : String = "SETUP_SOUNDS";
 
 		private var _type : String;
 		private var _state : String;		

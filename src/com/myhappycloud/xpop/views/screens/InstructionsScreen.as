@@ -1,16 +1,16 @@
 package com.myhappycloud.xpop.views.screens
 {
-	import flash.events.MouseEvent;
+	import assets.InstructionsView;
 
 	import com.myhappycloud.xpop.utils.BtnUtils;
-
-	import assets.InstructionsView;
+	import com.myhappycloud.xpop.utils.XpopSounds;
+	import com.myhappycloud.xpop.views.IScreen;
+	import com.reintroducing.sound.SoundManager;
 
 	import org.osflash.signals.Signal;
 
-	import com.myhappycloud.xpop.views.IScreen;
-
 	import flash.display.MovieClip;
+	import flash.events.MouseEvent;
 
 	/**
 	 * @author Eder
@@ -30,6 +30,13 @@ package com.myhappycloud.xpop.views.screens
 			_playSignal = new Signal();
 			view = new InstructionsView();
 			addChild(view);
+			
+			var sm:SoundManager = SoundManager.getInstance();
+			if(sm.isSoundPaused(XpopSounds.INTRO_LOOP)){
+				sm.fadeSound(XpopSounds.GAME_OVER_LOOP,0,1,true);
+				sm.playSound(XpopSounds.INTRO_LOOP,0,0,999999);
+				sm.fadeSound(XpopSounds.GAME_OVER_LOOP,1);
+			}
 		}
 
 		public function get mc() : MovieClip

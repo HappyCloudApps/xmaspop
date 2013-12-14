@@ -19,6 +19,12 @@ package com.myhappycloud.xpop.mediators
 			trace("SplashMediator.onRegister()");
 			view.open();
 			view.gomenu.addOnce(dispatchMenu);
+			view.soundsLoaded.addOnce(dispatchSounds);
+		}
+
+		private function dispatchSounds() : void
+		{
+			dispatch(new NavEvent(NavEvent.SETUP_SOUNDS, ""));
 		}
 
 		private function dispatchMenu() : void

@@ -1,5 +1,7 @@
 package com.myhappycloud.xpop.views
 {
+	import com.greensock.easing.Bounce;
+	import com.greensock.TweenLite;
 	import com.myhappycloud.xpop.views.screens.GameOverScreen;
 	import com.myhappycloud.xpop.views.screens.GameScreen;
 	import com.myhappycloud.xpop.views.screens.InstructionsScreen;
@@ -16,6 +18,7 @@ package com.myhappycloud.xpop.views
 	{
 		private var _currentScreen : IScreen;
 		private var nextScreen : IScreen;
+		private var transition : int;
 
 		public function init() : void
 		{
@@ -25,6 +28,7 @@ package com.myhappycloud.xpop.views
 		public function update(state : String) : void
 		{
 			trace("ScreensContainer.update(state) - " + state);
+			transition = 0;
 			switch(state)
 			{
 				case AppStates.SPLASH:
@@ -32,17 +36,20 @@ package com.myhappycloud.xpop.views
 					break;
 				case AppStates.MAIN_MENU:
 					nextScreen = new MainMenuScreen();
+					transition = 2;
 					break;
 				case AppStates.INSTRUCTIONS:
 					nextScreen = new InstructionsScreen();
+					transition = 2;
 					break;
 				case AppStates.GAME:
 					nextScreen = new GameScreen();
+					transition = 2;
 					break;
 				case AppStates.GAME_OVER:
 					nextScreen = new GameOverScreen();
+					transition = 1;
 					break;
-					
 				default:
 					trace("ScreensContainer.update(state) - state without screen");
 					nextScreen = null;
@@ -68,11 +75,32 @@ package com.myhappycloud.xpop.views
 		private function switchToNextScreen() : void
 		{
 			if (_currentScreen)
-				removeChild(_currentScreen.mc);
-			_currentScreen = nextScreen;
-			_currentScreen.open();
-			addChild(_currentScreen.mc);
+			{
+				_currentScreen.mc.mouseChildren = _currentScreen.mc.mouseEnabled = false;
+
+				// removeChild(_currentScreen.mc);
+				var oldScreen:MovieClip=_currentScreen.mc;
+				_currentScreen = nextScreen;
+				_currentScreen.open();
+				addChild(_currentScreen.mc);
+
+				if (transition == 1)
+					TweenLite.from(_currentScreen.mc, .5, {y:-760, onComplete:removeScr, onCompleteParams:[oldScreen]});
+				if (transition == 2)
+					TweenLite.from(_currentScreen.mc, .7, {x:600, onComplete:removeScr, onCompleteParams:[oldScreen]});
+			}
+			else
+			{
+				_currentScreen = nextScreen;
+				_currentScreen.open();
+				addChild(_currentScreen.mc);
+			}
 			nextScreen = null;
+		}
+
+		private function removeScr(mc:MovieClip) : void
+		{
+			removeChild(mc);
 		}
 	}
 }

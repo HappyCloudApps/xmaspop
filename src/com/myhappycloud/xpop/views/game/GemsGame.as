@@ -13,6 +13,8 @@ package com.myhappycloud.xpop.views.game
 	 */
 	public class GemsGame
 	{
+		private static const TOTAL_TIME : int = 90000;
+//		private static const TOTAL_TIME : int = 5000;
 		private var _view : MovieClip;
 		private var _updateScoreSignal : Signal;
 		private var _updateTimeSignal : Signal;
@@ -23,15 +25,16 @@ package com.myhappycloud.xpop.views.game
 		private var totalTime : int;
 		private var timeTimer : Timer;
 		private var paused : Boolean = false;
+		private var gameMech : GemsMechanics;
 
 		public function GemsGame(container : MovieClip)
 		{
 			trace("GemsGame.GemsGame(view)");
 			this._view = container;
-			var gameMech:GemsMechanics = new GemsMechanics();
+			gameMech = new GemsMechanics();
 			_view.addChild(gameMech);
 			_updateScoreSignal = gameMech.scoreUpdate;
-			_updateTimeSignal = new Signal(String);
+			_updateTimeSignal = new Signal(int);
 			_gameOverSignal = new Signal();
 		}
 
@@ -40,7 +43,7 @@ package com.myhappycloud.xpop.views.game
 			startTime = getTimer();
 			acumTime = 0;
 			bonusTime = 0;
-			totalTime = 60000;
+			totalTime = TOTAL_TIME;
 			calculateRemainingTime();
 
 			timeTimer = new Timer(100);
@@ -60,16 +63,18 @@ package com.myhappycloud.xpop.views.game
 			var remainingTime : int = totalTime - acumTime + bonusTime;
 			remainingTime = remainingTime - (getTimer() - startTime);
 			sec = remainingTime / 1000;
-			min = Math.floor(sec / 60);
-			sec = sec % 60;
-			if (sec < 10)
-				_updateTimeSignal.dispatch(min + ":0" + sec);
-			else
-				_updateTimeSignal.dispatch(min + ":" + sec);
+			// min = Math.floor(sec / 60);
+			// sec = sec % 60;
+			// if (sec < 10)
+			// _updateTimeSignal.dispatch(min + ":0" + sec);
+			// else
+			// _updateTimeSignal.dispatch(min + ":" + sec);
+			_updateTimeSignal.dispatch(sec);
 
 			if (remainingTime <= 0)
 				gameOver();
 		}
+
 
 		private function gameOver() : void
 		{
@@ -95,11 +100,22 @@ package com.myhappycloud.xpop.views.game
 
 		public function pause() : void
 		{
-			if(paused)
+			if (paused)
 				return;
-			acumTime = getTimer() - startTime;
+			acumTime += getTimer() - startTime;
 			paused = true;
 			timeTimer.stop();
+			gameMech.visible = false;
+		}
+
+		public function resume() : void
+		{
+			if (!paused)
+				return;
+			startTime = getTimer();
+			paused = false;
+			timeTimer.start();
+			gameMech.visible = true;
 		}
 	}
 }

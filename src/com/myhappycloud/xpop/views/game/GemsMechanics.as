@@ -1,11 +1,24 @@
 package com.myhappycloud.xpop.views.game
 {
+	import flash.geom.Point;
+	import com.greensock.easing.Back;
+	import com.greensock.easing.Elastic;
+	import com.greensock.easing.Bounce;
+	import com.greensock.TweenMax;
+
+	import assets.GemSelector;
+
 	import org.osflash.signals.Signal;
+
 	import flash.display.MovieClip;
+
 	import com.greensock.easing.Linear;
+
 	import flash.display.DisplayObject;
+
 	import com.greensock.data.TweenLiteVars;
 	import com.greensock.TweenLite;
+
 	import assets.GameGem;
 
 	import flash.display.Sprite;
@@ -18,10 +31,9 @@ package com.myhappycloud.xpop.views.game
 		private static const NUM_GEMS : int = 6;
 		private var gems_array : Array = new Array();
 		private var aGem : MovieClip;
-		private var selectorBox : Sprite = new Sprite();
+		private var selectorBox : Sprite = new GemSelector();
 		private var selectorRow : int = -10;
 		private var selectorColumn : int = -10;
-		private var red : uint = 0xFF0000;
 		private var clickPossible : Boolean = false;
 		private var score_txt : TextField = new TextField();
 		private var hint_txt : TextField = new TextField();
@@ -33,6 +45,7 @@ package com.myhappycloud.xpop.views.game
 		private var gemWH : Number = 49.3;
 		private var gameWH : Number = 396;
 		private var _scoreUpdate : Signal;
+		private var gemsFalling : int = 0;
 
 		public function GemsMechanics()
 		{
@@ -46,7 +59,7 @@ package com.myhappycloud.xpop.views.game
 			addChild(hint_txt);
 			hint_txt.textColor = 0xFFFFFF;
 			hint_txt.x = 550;
-			
+
 			initialSetupGems();
 
 			if (stage)
@@ -76,13 +89,13 @@ package com.myhappycloud.xpop.views.game
 					aGem.graphics.beginFill(colours_array[gems_array[i][j]]);
 					aGem.graphics.drawCircle(23, 23, 23);
 					aGem.graphics.endFill();
-					*/
+					 */
 					aGem.name = i + "_" + j;
-					aGem.x = j * gemWH - 240;
-					aGem.y = i * gemWH - 240;
-					aGem.targetY = aGem.y;
-					var gemGraph:GameGem = new GameGem();
-					var frame:int = (gems_array[i][j])+1;
+					aGem.x = j * gemWH - 240 + 23;
+					aGem.y = i * gemWH - 240 + 22;
+
+					var gemGraph : GameGem = new GameGem();
+					var frame : int = (gems_array[i][j]) + 1;
 					gemGraph.gotoAndStop(frame);
 
 					aGem.addChild(gemGraph);
@@ -91,8 +104,8 @@ package com.myhappycloud.xpop.views.game
 			}
 			// Create and style selector box
 			addChild(selectorBox);
-			selectorBox.graphics.lineStyle(2, red, 1);
-			selectorBox.graphics.drawRect(0, 0, gemWH, gemWH);
+			// selectorBox.graphics.lineStyle(2, red, 1);
+			// selectorBox.graphics.drawRect(0, 0, gemWH, gemWH);
 			selectorBox.visible = false;
 		}
 
@@ -109,7 +122,10 @@ package com.myhappycloud.xpop.views.game
 		private function everyFrame(e : Event) : void
 		{
 			// Assume that gems are not falling
-			var gemsAreFalling : Boolean = false;
+			// var gemsAreFalling : Boolean = false;
+			if (gemsFalling > 0)
+				return;
+
 			// Check each gem for space below it
 			for (var i : int = 6; i >= 0; i--)
 			{
@@ -119,30 +135,34 @@ package com.myhappycloud.xpop.views.game
 					if (gems_array[i][j] != -1 && gems_array[i + 1][j] == -1)
 					{
 						// Set gems falling
-						gemsAreFalling = true;
+						// gemsAreFalling = true;
+						gemsFalling++;
 						gems_array[i + 1][j] = gems_array[i][j];
 						gems_array[i][j] = -1;
 						gemCanvas.getChildByName(i + "_" + j).y += gemWH;
-//						var gem : MovieClip = MovieClip(gemCanvas.getChildByName(i + "_" + j));
-//						TweenLite.killTweensOf(gem);
-//						var vars:TweenLiteVars = new TweenLiteVars();
-//						gem.targetY = gem.targetY+gemWH;
-//						vars.y(gem.targetY);
-//						vars.ease(Linear.easeNone);
-//						TweenLite.to(gem,.3,vars);
+
+						var gem : MovieClip = MovieClip(gemCanvas.getChildByName(i + "_" + j));
+						TweenLite.killTweensOf(gem);
+						// var vars:TweenLiteVars = new TweenLiteVars();
+						// gem.targetY = gem.targetY+gemWH;
+						// vars.y(gem.targetY);
+						// vars.ease(Linear.easeNone);
+						TweenLite.from(gem, .08, {y:gem.y - gemWH, ease:Linear.easeNone, onComplete:gemStoppedFalling});
+
 						gemCanvas.getChildByName(i + "_" + j).name = (i + 1) + "_" + j;
-						break;
+						// break;
 					}
 				}
 				// If a gem is falling
-				if (gemsAreFalling)
+				/*
+				if (gemsFalling>0)
 				{
-					// don't allow any more to start falling
-					break;
-				}
+				// don't allow any more to start falling
+				break;
+				}*/
 			}
 			// If no gems are falling
-			if (!gemsAreFalling)
+			if (gemsFalling == 0)
 			{
 				// Assume no new gems are needed
 				var needNewGem : Boolean = false;
@@ -164,22 +184,25 @@ package com.myhappycloud.xpop.views.game
 							aGem.graphics.beginFill(colours_array[gems_array[0][j]]);
 							aGem.graphics.drawCircle(23, 23, 23);
 							aGem.graphics.endFill();
-							*/
+							 */
 							// ID it
 							aGem.name = "0_" + j;
 							// position it
-							aGem.x = j * gemWH - 240;
-							aGem.y = -240;
-							aGem.targetY = aGem.y;
+							aGem.x = j * gemWH - 240 + 23;
+							aGem.y = -240 + 22;
 							// show it
-							var gemGraph:GameGem = new GameGem();
-							var frame:int = (gems_array[0][j])+1;
+							var gemGraph : GameGem = new GameGem();
+							var frame : int = (gems_array[0][j]) + 1;
 							gemGraph.gotoAndStop(frame);
-							trace('frame: ' + (frame));
+							// trace('frame: ' + (frame));
 							aGem.addChild(gemGraph);
 							gemCanvas.addChild(aGem);
+							
+							gemsFalling++;
+							TweenLite.from(aGem, .1, {scaleX:.2, scaleY:.2, onComplete:completedSwitch});
+							
 							// stop creating new gems
-							break;
+							//break;
 						}
 					}
 					// if a new gem was created, stop checking
@@ -242,10 +265,15 @@ package com.myhappycloud.xpop.views.game
 									}
 								}
 								// for all gems in the line...
+
 								for (i = 0; i < lineGems.length; i++)
 								{
 									// remove it from the program
-									gemCanvas.removeChild(gemCanvas.getChildByName(lineGems[i]));
+									// gemCanvas.removeChild(gemCanvas.getChildByName(lineGems[i]));
+									var gemBye : MovieClip = MovieClip(gemCanvas.getChildByName(lineGems[i]));
+									gemCanvas.addChild(gemBye);
+									TweenMax.to(gemBye, .3, {ease:Back.easeIn, scaleX:.2, scaleY:.2, onComplete:removeMe, onCompleteParams:[gemBye]})
+									gemsFalling++;
 									// find where it was in the array
 									var cd : Array = lineGems[i].split("_");
 									// set it to an empty gem space
@@ -320,6 +348,22 @@ package com.myhappycloud.xpop.views.game
 			_scoreUpdate.dispatch(score);
 		}
 
+		private function removeMe(gem : MovieClip) : void
+		{
+			gemCanvas.removeChild(gem);
+			gemsFalling--;
+		}
+
+		private function gemStoppedFalling() : void
+		{
+			gemsFalling--;
+			if (gemsFalling < 0)
+			{
+				trace("WTF!");
+				gemsFalling = 0;
+			}
+		}
+
 		// When the user clicks
 		private function onClick(e : MouseEvent) : void
 		{
@@ -340,8 +384,11 @@ package com.myhappycloud.xpop.views.game
 						selectorRow = clickedRow;
 						selectorColumn = clickedColumn;
 						// Move it to the chosen position
-						selectorBox.x = gemWH * selectorColumn;
-						selectorBox.y = gemWH * selectorRow;
+						selectorBox.x = gemWH * selectorColumn + 23;
+						selectorBox.y = gemWH * selectorRow + 22;
+
+						TweenMax.fromTo(selectorBox, .1, {scaleX:.8, scaleY:.8}, {scaleX:1, scaleY:1});
+
 						// If hidden, show it.
 						selectorBox.visible = true;
 					}
@@ -358,15 +405,22 @@ package com.myhappycloud.xpop.views.game
 							// dis-allow a new move until cascade has ended (removes glitches)
 							clickPossible = false;
 							// move and rename the gems
-							gemCanvas.getChildByName(selectorRow + "_" + selectorColumn).x = clickedColumn * gemWH - 240;
-							gemCanvas.getChildByName(selectorRow + "_" + selectorColumn).y = clickedRow * gemWH - 240;
+							gemCanvas.getChildByName(selectorRow + "_" + selectorColumn).x = clickedColumn * gemWH - 240 + 23;
+							gemCanvas.getChildByName(selectorRow + "_" + selectorColumn).y = clickedRow * gemWH - 240 + 22;
 							gemCanvas.getChildByName(selectorRow + "_" + selectorColumn).name = "t";
-							gemCanvas.getChildByName(clickedRow + "_" + clickedColumn).x = selectorColumn * gemWH - 240;
-							gemCanvas.getChildByName(clickedRow + "_" + clickedColumn).y = selectorRow * gemWH - 240;
+							gemCanvas.getChildByName(clickedRow + "_" + clickedColumn).x = selectorColumn * gemWH - 240 + 23;
+							gemCanvas.getChildByName(clickedRow + "_" + clickedColumn).y = selectorRow * gemWH - 240 + 22;
 							gemCanvas.getChildByName(clickedRow + "_" + clickedColumn).name = selectorRow + "_" + selectorColumn;
 							gemCanvas.getChildByName("t").name = clickedRow + "_" + clickedColumn;
 							match = true;
 							rotate = true;
+
+							var gem1 : MovieClip = MovieClip(gemCanvas.getChildByName(selectorRow + "_" + selectorColumn));
+							var gem2 : MovieClip = MovieClip(gemCanvas.getChildByName(clickedRow + "_" + clickedColumn));
+							var p1:Point = new Point(gem1.x,gem1.y);
+							TweenLite.from(gem1, .3, {x:gem2.x, y:gem2.y, onComplete:completedSwitch});
+							TweenLite.from(gem2, .3, {x:p1.x, y:p1.y, onComplete:completedSwitch});
+							gemsFalling += 2;
 						}
 						// If not...
 						else
@@ -389,8 +443,11 @@ package com.myhappycloud.xpop.views.game
 							selectorRow = clickedRow;
 							selectorColumn = clickedColumn;
 							// Move the box into position
-							selectorBox.x = gemWH * selectorColumn;
-							selectorBox.y = gemWH * selectorRow;
+							selectorBox.x = gemWH * selectorColumn + 23;
+							selectorBox.y = gemWH * selectorRow + 22;
+
+							TweenMax.fromTo(selectorBox, .1, {scaleX:.8, scaleY:.8}, {scaleX:1, scaleY:1});
+
 							match = false;
 							// If hidden, show it.
 							selectorBox.visible = true;
@@ -415,8 +472,8 @@ package com.myhappycloud.xpop.views.game
 								if ((rowLineLength(i, j) > 2 || columnLineLength(i, j) > 2 || rowLineLength(i + 1, j) > 2 || columnLineLength(i + 1, j) > 2))
 								{
 									// if so, name the move made
-									selectorBox.x = j * gemWH;
-									selectorBox.y = i * gemWH;
+									selectorBox.x = j * gemWH + 23;
+									selectorBox.y = i * gemWH + 22;
 									selectorBox.visible = true;
 									hint_txt.text = (i + 1).toString() + "," + (j + 1).toString() + "->" + (i + 2).toString() + "," + (j + 1).toString();
 								}
@@ -432,8 +489,8 @@ package com.myhappycloud.xpop.views.game
 								if ((rowLineLength(i, j) > 2 || columnLineLength(i, j) > 2 || rowLineLength(i, j + 1) > 2 || columnLineLength(i, j + 1) > 2) )
 								{
 									// if so, name it
-									selectorBox.x = j * gemWH;
-									selectorBox.y = i * gemWH;
+									selectorBox.x = j * gemWH + 23;
+									selectorBox.y = i * gemWH + 22;
 									selectorBox.visible = true;
 									hint_txt.text = (i + 1).toString() + "," + (j + 1).toString() + "->" + (i + 1).toString() + "," + (j + 2).toString();
 								}
@@ -444,6 +501,11 @@ package com.myhappycloud.xpop.views.game
 					}
 				}
 			}
+		}
+
+		private function completedSwitch() : void
+		{
+			gemsFalling--;
 		}
 
 		// Swap given gems

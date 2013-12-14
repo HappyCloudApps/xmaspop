@@ -7,6 +7,8 @@ package com.myhappycloud.xpop.events
 	public class ModelEvent extends Event 
 	{
 		public static const SET_SCORE : String = "SET_SCORE";
+		public static const TOGGLE_VOLUME : String = "TOGGLE_VOLUME";
+		public static const SETTINGS_UPDATED : String = "SETTINGS_UPDATED";
 
 		private var _type : String;
 		private var _data : Object;		

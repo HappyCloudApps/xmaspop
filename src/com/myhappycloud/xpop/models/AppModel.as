@@ -1,5 +1,7 @@
 package com.myhappycloud.xpop.models
 {
+	import com.myhappycloud.xpop.services.facebook.FriendObj;
+	import com.myhappycloud.xpop.events.ModelEvent;
 	import com.myhappycloud.xpop.events.ScreenEvent;
 
 	import stateMachine.StateMachineEvent;
@@ -13,7 +15,12 @@ package com.myhappycloud.xpop.models
 	public class AppModel extends Actor implements IAppVars
 	{
 		private var sMachine : StateMachine;
-		private var _score : uint;
+		private var _score : uint=0;
+		private var _vol : int=1;
+		private var fbName : String;
+		private var fbPic : String;
+		private var fbFriends : Vector.<FriendObj>;
+		private var _highScore : uint=0;
 
 		public function AppModel()
 		{
@@ -59,10 +66,73 @@ package com.myhappycloud.xpop.models
 		{
 			_score = score;
 		}
-		
+
 		public function getScore() : uint
 		{
 			return _score;
+		}
+
+		public function getVolume() : int
+		{
+			return _vol;
+		}
+
+		public function toggleVol() : void
+		{
+			if (_vol == 0)
+				_vol = 1;
+			else
+				_vol = 0;
+
+			dispatch(new ModelEvent(ModelEvent.SETTINGS_UPDATED, {}));
+		}
+
+		public function setFbData(name : String, avatarUrl : String) : void
+		{
+			this.fbPic = avatarUrl;
+			this.fbName = name;
+		}
+
+		public function setFbFriends(friends : Vector.<FriendObj>) : void
+		{
+			this.fbFriends = friends;
+		}
+
+		public function getUserName() : String
+		{
+			return fbName;
+		}
+
+		public function getUserPic() : String
+		{
+			return fbPic;
+		}
+
+		public function setFriendScore(uid : String, score : int) : void
+		{
+			for (var i : int = 0; i < fbFriends.length; i++) 
+			{
+				if(fbFriends[i].uid==uid)
+				{
+					fbFriends[i].score=score;
+					return;
+				}
+			}
+		}
+
+		public function getFriends() : Vector.<FriendObj>
+		{
+			return fbFriends;
+		}
+
+		public function setHighscore(score : uint) : void
+		{
+			_highScore = score;
+		}
+
+		public function getHighscore() : uint
+		{
+			return _highScore;
 		}
 	}
 }
